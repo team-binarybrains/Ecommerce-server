@@ -26,7 +26,7 @@ async function run() {
     })
 
     // get single product filter by id
-    app.get('/all-product/:id', async (req, res) => {
+    app.get('/product/:id', async (req, res) => {
       const id = req.params.id
       const query = { _id: ObjectId(id) }
       const result = await productsCollection.findOne(query)
@@ -39,6 +39,15 @@ async function run() {
       res.send(result)
     })
 
+
+    // delete single product
+    app.delete("/product/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await productsCollection.deleteOne(query);
+      res.send(result);
+  })
+
     // get all order
     app.get('/all-order', async(req, res)=>{
       const result = await ordersCollection.find({}).toArray()
@@ -49,6 +58,14 @@ async function run() {
     app.post('/order', async (req, res) => {
       const result = await ordersCollection.insertOne(req.body)
       res.send(result)
+    })
+
+      // cancle order api
+      app.delete("/cancel-order/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await ordersCollection.deleteOne(query);
+        res.send(result);
     })
 
   }
