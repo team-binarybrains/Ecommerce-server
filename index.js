@@ -17,6 +17,7 @@ async function run() {
   try {
     await client.connect()
     const productsCollection = client.db('project-ecommerce').collection('all-products')
+    const ordersCollection = client.db('project-ecommerce').collection('all-orders')
 
   //  get all product
     app.get('/all-product', async(req, res)=>{
@@ -38,7 +39,11 @@ async function run() {
       res.send(result)
     })
 
-    
+    app.post('/order', async (req, res) => {
+      const result = await ordersCollection.insertOne(req.body)
+      res.send(result)
+    })
+
   }
   finally { }
 }
