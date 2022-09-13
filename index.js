@@ -26,7 +26,7 @@ async function run() {
     })
 
     // get single product filter by id
-    app.get('/all-product/:id', async (req, res) => {
+    app.get('/product/:id', async (req, res) => {
       const id = req.params.id
       const query = { _id: ObjectId(id) }
       const result = await productsCollection.findOne(query)
@@ -38,6 +38,15 @@ async function run() {
       const result = await productsCollection.insertOne(req.body)
       res.send(result)
     })
+
+
+    // delete single product
+    app.delete("/product/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await productsCollection.deleteOne(query);
+      res.send(result);
+  })
 
     // get all order
     app.get('/all-order', async(req, res)=>{
