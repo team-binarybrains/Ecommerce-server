@@ -60,6 +60,14 @@ async function run() {
       res.send(result)
     })
 
+      // cancle order api
+      app.delete("/cancel-order/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await ordersCollection.deleteOne(query);
+        res.send(result);
+    })
+
   }
   finally { }
 }
