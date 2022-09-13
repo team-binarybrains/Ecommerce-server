@@ -13,14 +13,21 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-
-
 async function run() {
   try {
-      await client.connect()
-      const productsCollection = client.db('parts_and_co').collection('products')
+    await client.connect()
+    const productsCollection = client.db('project-ecommerce').collection('all-products')
+
+    app.post('/product', async (req, res) => {
+      const result = await productsCollection.insertOne(req.body)
+      res.send(result)
+    })
 
 
+    app.get('/all-product', async(req, res)=>{
+      const result = await productsCollection.find({}).toArray()
+      res.send(result)
+    })
 
   }
   finally { }
