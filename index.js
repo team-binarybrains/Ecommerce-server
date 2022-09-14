@@ -1,7 +1,7 @@
 const express = require("express");
+require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
-require("dotenv").config();
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
@@ -46,10 +46,10 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const result = await productsCollection.deleteOne(query);
       res.send(result);
-  })
+    })
 
     // get all order
-    app.get('/all-order', async(req, res)=>{
+    app.get('/all-order', async (req, res) => {
       const result = await ordersCollection.find({}).toArray()
       res.send(result)
     })
@@ -60,12 +60,12 @@ async function run() {
       res.send(result)
     })
 
-      // cancle order api
-      app.delete("/cancel-order/:id", async (req, res) => {
-        const id = req.params.id;
-        const query = { _id: ObjectId(id) };
-        const result = await ordersCollection.deleteOne(query);
-        res.send(result);
+    // cancle order api
+    app.delete("/cancel-order/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await ordersCollection.deleteOne(query);
+      res.send(result);
     })
 
   }
