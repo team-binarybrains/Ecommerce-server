@@ -87,6 +87,8 @@ async function run() {
       const result = await ordersCollection.deleteOne(query);
       res.send(result);
     });
+
+   
   } finally {
   }
 }
