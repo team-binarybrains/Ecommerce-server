@@ -28,7 +28,7 @@ async function run() {
       .db("project-ecommerce")
       .collection("cart-products");
 
-      const userCollection = client
+    const userCollection = client
       .db("project-ecommerce")
       .collection("all-users");
 
@@ -92,8 +92,8 @@ async function run() {
       res.send(result);
     });
 
-     // all user start
-     app.put("/user/:email", async (req, res) => {
+    // all user start
+    app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
       const filter = { email: email };
@@ -104,7 +104,11 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     });
-   
+    app.get("/alluser", async (req, res) => {
+      const query = {};
+      const result = await userCollection.find(query).toArray();
+      res.send(result);
+    });
   } finally {
   }
 }
