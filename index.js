@@ -28,6 +28,10 @@ async function run() {
       .db("project-ecommerce")
       .collection("cart-products");
 
+      const userCollection = client
+      .db("project-ecommerce")
+      .collection("all-users");
+
     //  get all product
     app.get("/all-product", async (req, res) => {
       const result = await productsCollection.find({}).toArray();
@@ -88,6 +92,18 @@ async function run() {
       res.send(result);
     });
 
+     // all user start
+     app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    });
    
   } finally {
   }
