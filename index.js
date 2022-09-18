@@ -38,6 +38,13 @@ async function run() {
       res.send(result);
     });
 
+    // add product
+    app.post("/add-product", async (req, res) => {
+      const product = req.body;
+      const result = await productsCollection.insertOne(product);
+      res.send(result);
+    });
+
     // get single product filter by id
     app.get("/product/:id", async (req, res) => {
       const id = req.params.id;
@@ -105,7 +112,6 @@ async function run() {
       res.send(result);
     });
 
-
     app.get("/alluser", async (req, res) => {
       const query = {};
       const result = await userCollection.find(query).toArray();
@@ -119,7 +125,7 @@ async function run() {
       const filter = { email: email };
       const options = { upsert: true };
       const updateDoc = {
-        $set: { role: 'admin' },
+        $set: { role: "admin" },
       };
       const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send(result);
@@ -131,8 +137,7 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const result = await userCollection.deleteOne(query);
       res.send(result);
-    })
-
+    });
   } finally {
   }
 }
