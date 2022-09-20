@@ -4,9 +4,41 @@ const app = express();
 const port = process.env.PORT || 5000;
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const fs = require('fs');
+const multer = require('multer');
+const path = require('path');
+
+const clientPublic = `${process.cwd()}/../Ecommerce-client/public/products`;
+const clientBuildPublic = `${process.cwd()}/../Ecommerce-client/build/public/products`;
+
+const storage = multer.diskStorage({
+  destination: (req,file,cb)=> {
+      cb(null, clientPublic);
+  },
+  filename: (req,file,cb)=> {
+      const fileExt = path.extname(file.originalname);
+      const fileName = file.originalname.replace(fileExt,'').toLowerCase().split(' ').join('-')+'-'+Date.now();
+      cb(null,fileName+fileExt);
+  }
+})
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req,file,cb)=> {
+    if (file.mimetype === 'image/png' ||
+      file.mimetype === 'image/png' ||
+      file.mimetype === 'image/png') {
+        cb(null,true);
+    }else{
+      cb(null,false);
+    }
+  }
+})
 
 app.use(cors());
 app.use(express.json());
+
+
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.socjvku.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -61,9 +93,13 @@ async function run() {
 
     // delete single product
     app.delete("/product/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
+      const id = req?.params?.id;
+      const query = {_id: ObjectId(id)};
+      const product = await productsCollection.findOne(query);
       const result = await productsCollection.deleteOne(query);
+      fs.unlink(`${process.cwd()}/../Ecommerce-client/public/${product?.image}`,(err)=> {
+          console.log(err);
+      });
       res.send(result);
     });
 
@@ -78,6 +114,7 @@ async function run() {
       const result = await ordersCollection.insertOne(req.body);
       res.send(result);
     });
+    
     // add to cart
     app.put("/cart/:id", async (req, res) => {
       const id = req.params.id;
@@ -146,6 +183,14 @@ async function run() {
       const result = await userCollection.deleteOne(query);
       res.send(result);
     });
+
+    app.post('/upload', upload.single('productImg'), (req,res)=> {
+      // fs.readFile(`${clientPublic}/products/mac.jpg`,'utf-8',(err,data)=> {
+      //   console.log(data);
+      // });
+      
+      res.send({...req.file,uploaded:true});
+    })
   } finally {
   }
 }
