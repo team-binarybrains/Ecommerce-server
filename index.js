@@ -185,11 +185,8 @@ async function run() {
     });
 
     app.post('/upload', upload.single('productImg'), (req,res)=> {
-      // fs.readFile(`${clientPublic}/products/mac.jpg`,'utf-8',(err,data)=> {
-      //   console.log(data);
-      // });
       
-      res.send({...req.file,uploaded:true});
+      res.send({...req?.file,uploaded:true});
     })
   } finally {
   }
