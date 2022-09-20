@@ -25,8 +25,8 @@ const upload = multer({
   storage: storage,
   fileFilter: (req,file,cb)=> {
     if (file.mimetype === 'image/png' ||
-      file.mimetype === 'image/png' ||
-      file.mimetype === 'image/png') {
+      file.mimetype === 'image/jpg' ||
+      file.mimetype === 'image/jpeg') {
         cb(null,true);
     }else{
       cb(null,false);
@@ -104,13 +104,20 @@ async function run() {
 
     // get all order
     app.get("/all-order", async (req, res) => {
-      const result = await ordersCollection.find({}).toArray();
+      const result = await (await ordersCollection.find({}).toArray()).reverse();
       res.send(result);
     });
 
     // order post api
     app.post("/order", async (req, res) => {
       const result = await ordersCollection.insertOne(req.body);
+      res.send(result);
+    });
+
+    // order post api
+    app.put("/order/:id", async (req, res) => {
+      const {id} = req.params;
+      const result = await ordersCollection.updateOne({_id:ObjectId(id)},{$set:{'confirm':true}},{upsert:false});
       res.send(result);
     });
     
