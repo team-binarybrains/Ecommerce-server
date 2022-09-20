@@ -8,12 +8,11 @@ const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 
-const clientPublic = `${process.cwd()}/../Ecommerce-client/public/products`;
-const clientBuildPublic = `${process.cwd()}/../Ecommerce-client/build/public/products`;
+const fileDir = `${process.cwd()}/products`;
 
 const storage = multer.diskStorage({
   destination: (req,file,cb)=> {
-      cb(null, clientPublic);
+      cb(null, fileDir);
   },
   filename: (req,file,cb)=> {
       const fileExt = path.extname(file.originalname);
@@ -97,7 +96,7 @@ async function run() {
       const query = {_id: ObjectId(id)};
       const product = await productsCollection.findOne(query);
       const result = await productsCollection.deleteOne(query);
-      fs.unlink(`${process.cwd()}/../Ecommerce-client/public/${product?.image}`,(err)=> {
+      fs.unlink(`${fileDir}/${product?.image}`,(err)=> {
           console.log(err);
       });
       res.send(result);
@@ -187,6 +186,14 @@ async function run() {
     app.post('/upload', upload.single('productImg'), (req,res)=> {
       
       res.send({...req?.file,uploaded:true});
+    })
+
+    app.get('/file/:id', async (req,res)=> {
+      const {id} = req.params;
+      console.log(__dirname);
+      const file = `${__dirname}/products/${id}`;
+      res.sendFile(file);
+      // res.send({file:true});
     })
   } finally {
   }
