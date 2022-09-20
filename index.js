@@ -184,16 +184,13 @@ async function run() {
     });
 
     app.post('/upload', upload.single('productImg'), (req,res)=> {
-      
       res.send({...req?.file,uploaded:true});
     })
 
     app.get('/file/:id', async (req,res)=> {
       const {id} = req.params;
-      console.log(__dirname);
       const file = `${__dirname}/products/${id}`;
       res.sendFile(file);
-      // res.send({file:true});
     })
   } finally {
   }
