@@ -4,9 +4,40 @@ const app = express();
 const port = process.env.PORT || 5000;
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const fs = require('fs');
+const multer = require('multer');
+const path = require('path');
+
+const fileDir = `${process.cwd()}/products`;
+
+const storage = multer.diskStorage({
+  destination: (req,file,cb)=> {
+      cb(null, fileDir);
+  },
+  filename: (req,file,cb)=> {
+      const fileExt = path.extname(file.originalname);
+      const fileName = file.originalname.replace(fileExt,'').toLowerCase().split(' ').join('-')+'-'+Date.now();
+      cb(null,fileName+fileExt);
+  }
+})
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req,file,cb)=> {
+    if (file.mimetype === 'image/png' ||
+      file.mimetype === 'image/jpg' ||
+      file.mimetype === 'image/jpeg') {
+        cb(null,true);
+    }else{
+      cb(null,false);
+    }
+  }
+})
 
 app.use(cors());
 app.use(express.json());
+
+
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.socjvku.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -61,15 +92,19 @@ async function run() {
 
     // delete single product
     app.delete("/product/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
+      const id = req?.params?.id;
+      const query = {_id: ObjectId(id)};
+      const product = await productsCollection.findOne(query);
       const result = await productsCollection.deleteOne(query);
+      fs.unlink(`${fileDir}/${product?.image}`,(err)=> {
+          console.log(err);
+      });
       res.send(result);
     });
 
     // get all order
     app.get("/all-order", async (req, res) => {
-      const result = await ordersCollection.find({}).toArray();
+      const result = await (await ordersCollection.find({}).toArray()).reverse();
       res.send(result);
     });
 
@@ -78,6 +113,14 @@ async function run() {
       const result = await ordersCollection.insertOne(req.body);
       res.send(result);
     });
+
+    // order post api
+    app.put("/order/:id", async (req, res) => {
+      const {id} = req.params;
+      const result = await ordersCollection.updateOne({_id:ObjectId(id)},{$set:{'confirm':true}},{upsert:false});
+      res.send(result);
+    });
+    
     // add to cart
     app.put("/cart/:id", async (req, res) => {
       const id = req.params.id;
@@ -147,13 +190,15 @@ async function run() {
       res.send(result);
     });
 
-    // delete product
-    app.delete("/delete-product/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await productsCollection.deleteOne(query);
-      res.send(result);
-    });
+    app.post('/upload', upload.single('productImg'), (req,res)=> {
+      res.send({...req?.file,uploaded:true});
+    })
+
+    app.get('/file/:id', async (req,res)=> {
+      const {id} = req.params;
+      const file = `${__dirname}/products/${id}`;
+      res.sendFile(file);
+    })
   } finally {
   }
 }
