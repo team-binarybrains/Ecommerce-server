@@ -120,8 +120,8 @@ async function run() {
     app.post("/order", async (req, res) => {
       const bodyData = req.body;
       const date = new Date();
-      // date.setTime(date.getTime() + (3 * 24 * 60 * 60 * 1000))
-      date.setTime(date.getTime() + (60 * 1000));
+      date.setTime(date.getTime() + (3 * 24 * 60 * 60 * 1000))
+      // date.setTime(date.getTime() + (60 * 1000));
       const result = await ordersCollection.insertOne({...bodyData,"createdAt": date});
       res.send(result);
     });
