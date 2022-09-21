@@ -11,25 +11,25 @@ const path = require('path');
 const fileDir = `${process.cwd()}/products`;
 
 const storage = multer.diskStorage({
-  destination: (req,file,cb)=> {
-      cb(null, fileDir);
+  destination: (req, file, cb) => {
+    cb(null, fileDir);
   },
-  filename: (req,file,cb)=> {
-      const fileExt = path.extname(file.originalname);
-      const fileName = file.originalname.replace(fileExt,'').toLowerCase().split(' ').join('-')+'-'+Date.now();
-      cb(null,fileName+fileExt);
+  filename: (req, file, cb) => {
+    const fileExt = path.extname(file.originalname);
+    const fileName = file.originalname.replace(fileExt, '').toLowerCase().split(' ').join('-') + '-' + Date.now();
+    cb(null, fileName + fileExt);
   }
 })
 
 const upload = multer({
   storage: storage,
-  fileFilter: (req,file,cb)=> {
+  fileFilter: (req, file, cb) => {
     if (file.mimetype === 'image/png' ||
       file.mimetype === 'image/jpg' ||
       file.mimetype === 'image/jpeg') {
-        cb(null,true);
-    }else{
-      cb(null,false);
+      cb(null, true);
+    } else {
+      cb(null, false);
     }
   }
 })
@@ -52,9 +52,11 @@ async function run() {
     const productsCollection = client
       .db("project-ecommerce")
       .collection("all-products");
+
     const ordersCollection = client
       .db("project-ecommerce")
       .collection("all-orders");
+
     const cartCollection = client
       .db("project-ecommerce")
       .collection("cart-products");
@@ -93,17 +95,17 @@ async function run() {
     // delete single product
     app.delete("/product/:id", async (req, res) => {
       const id = req?.params?.id;
-      const query = {_id: ObjectId(id)};
+      const query = { _id: ObjectId(id) };
       const product = await productsCollection.findOne(query);
       const result = await productsCollection.deleteOne(query);
-      fs.unlink(`${fileDir}/${product?.image}`,(err)=> {
-          console.log(err);
+      fs.unlink(`${fileDir}/${product?.image}`, (err) => {
+        console.log(err);
       });
-      fs.unlink(`${fileDir}/${product?.img1}`,(err)=> {
-          console.log(err);
+      fs.unlink(`${fileDir}/${product?.img1}`, (err) => {
+        console.log(err);
       });
-      fs.unlink(`${fileDir}/${product?.img2}`,(err)=> {
-          console.log(err);
+      fs.unlink(`${fileDir}/${product?.img2}`, (err) => {
+        console.log(err);
       });
       res.send(result);
     });
@@ -123,11 +125,11 @@ async function run() {
     // order post api
     app.put("/order/:id", async (req, res) => {
       const body = req.body;
-      const {id} = req.params;
-      const result = await ordersCollection.updateOne({_id:ObjectId(id)},{$set:body},{upsert:false});
+      const { id } = req.params;
+      const result = await ordersCollection.updateOne({ _id: ObjectId(id) }, { $set: body }, { upsert: false });
       res.send(result);
     });
-    
+
     // add to cart
     app.put("/cart/:id", async (req, res) => {
       const id = req.params.id;
@@ -197,16 +199,16 @@ async function run() {
       res.send(result);
     });
 
-    app.post('/upload', upload.fields([{name:'productImg',maxCount:1},{name:'productImg1',maxCount:1},{name:'productImg2',maxCount:1}]), (req,res)=> {
-      res.send({...req?.files,uploaded:true});
+    app.post('/upload', upload.fields([{ name: 'productImg', maxCount: 1 }, { name: 'productImg1', maxCount: 1 }, { name: 'productImg2', maxCount: 1 }]), (req, res) => {
+      res.send({ ...req?.files, uploaded: true });
     })
 
-    app.get('/file/:id', async (req,res)=> {
-      const {id} = req.params;
+    app.get('/file/:id', async (req, res) => {
+      const { id } = req.params;
       const file = `${__dirname}/products/${id}`;
       res.sendFile(file);
     })
-    
+
   } finally {
   }
 }
