@@ -110,13 +110,17 @@ async function run() {
 
     // get all order
     app.get("/all-order", async (req, res) => {
-      const result = await (await ordersCollection.find({}).toArray()).reverse();
-      res.send(result);
+      const result = await ordersCollection.find({}).toArray();
+      res.send(result.reverse());
     });
 
     // order post api
     app.post("/order", async (req, res) => {
-      const result = await ordersCollection.insertOne(req.body);
+      const bodyData = req.body;
+      const date = new Date();
+      // date.setTime(date.getTime() + (3 * 24 * 60 * 60 * 1000))
+      date.setTime(date.getTime() + (60 * 1000));
+      const result = await ordersCollection.insertOne({...bodyData,"createdAt": date});
       res.send(result);
     });
 
