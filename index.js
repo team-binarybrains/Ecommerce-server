@@ -99,6 +99,12 @@ async function run() {
       fs.unlink(`${fileDir}/${product?.image}`,(err)=> {
           console.log(err);
       });
+      fs.unlink(`${fileDir}/${product?.img1}`,(err)=> {
+          console.log(err);
+      });
+      fs.unlink(`${fileDir}/${product?.img2}`,(err)=> {
+          console.log(err);
+      });
       res.send(result);
     });
 
@@ -190,8 +196,8 @@ async function run() {
       res.send(result);
     });
 
-    app.post('/upload', upload.single('productImg'), (req,res)=> {
-      res.send({...req?.file,uploaded:true});
+    app.post('/upload', upload.fields([{name:'productImg',maxCount:1},{name:'productImg1',maxCount:1},{name:'productImg2',maxCount:1}]), (req,res)=> {
+      res.send({...req?.files,uploaded:true});
     })
 
     app.get('/file/:id', async (req,res)=> {
