@@ -122,8 +122,9 @@ async function run() {
 
     // order post api
     app.put("/order/:id", async (req, res) => {
+      const body = req.body;
       const {id} = req.params;
-      const result = await ordersCollection.updateOne({_id:ObjectId(id)},{$set:{'confirm':true}},{upsert:false});
+      const result = await ordersCollection.updateOne({_id:ObjectId(id)},{$set:body},{upsert:false});
       res.send(result);
     });
     
