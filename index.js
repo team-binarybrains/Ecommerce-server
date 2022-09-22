@@ -134,11 +134,11 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/productCount", async (req, res) => {
-      const query = {};
-      const result = await ordersCollection.find(query).count();
-      res.send({ result });
-    });
+    // app.get("/productCount", async (req, res) => {
+    //   const query = {};
+    //   const result = await ordersCollection.find(query).count();
+    //   res.send({ result });
+    // });
 
     // add to cart
     app.put("/cart/:id", async (req, res) => {
