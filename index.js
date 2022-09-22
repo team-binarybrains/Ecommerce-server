@@ -4,9 +4,9 @@ const app = express();
 const port = process.env.PORT || 5000;
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-const fs = require('fs');
-const multer = require('multer');
-const path = require('path');
+const fs = require("fs");
+const multer = require("multer");
+const path = require("path");
 
 const fileDir = `${process.cwd()}/products`;
 
@@ -16,28 +16,35 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const fileExt = path.extname(file.originalname);
-    const fileName = file.originalname.replace(fileExt, '').toLowerCase().split(' ').join('-') + '-' + Date.now();
+    const fileName =
+      file.originalname
+        .replace(fileExt, "")
+        .toLowerCase()
+        .split(" ")
+        .join("-") +
+      "-" +
+      Date.now();
     cb(null, fileName + fileExt);
-  }
-})
+  },
+});
 
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'image/png' ||
-      file.mimetype === 'image/jpg' ||
-      file.mimetype === 'image/jpeg') {
+    if (
+      file.mimetype === "image/png" ||
+      file.mimetype === "image/jpg" ||
+      file.mimetype === "image/jpeg"
+    ) {
       cb(null, true);
     } else {
       cb(null, false);
     }
-  }
-})
+  },
+});
 
 app.use(cors());
 app.use(express.json());
-
-
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.socjvku.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -52,11 +59,9 @@ async function run() {
     const productsCollection = client
       .db("project-ecommerce")
       .collection("all-products");
-
     const ordersCollection = client
       .db("project-ecommerce")
       .collection("all-orders");
-
     const cartCollection = client
       .db("project-ecommerce")
       .collection("cart-products");
@@ -101,38 +106,39 @@ async function run() {
       fs.unlink(`${fileDir}/${product?.image}`, (err) => {
         console.log(err);
       });
-      fs.unlink(`${fileDir}/${product?.img1}`, (err) => {
-        console.log(err);
-      });
-      fs.unlink(`${fileDir}/${product?.img2}`, (err) => {
-        console.log(err);
-      });
       res.send(result);
     });
 
     // get all order
     app.get("/all-order", async (req, res) => {
-      const result = await ordersCollection.find({}).toArray();
-      res.send(result.reverse());
+      const result = await (
+        await ordersCollection.find({}).toArray()
+      ).reverse();
+      res.send(result);
     });
 
     // order post api
     app.post("/order", async (req, res) => {
-      const bodyData = req.body;
-      const date = new Date();
-      date.setTime(date.getTime() + (3 * 24 * 60 * 60 * 1000))
-      // date.setTime(date.getTime() + (60 * 1000));
-      const result = await ordersCollection.insertOne({...bodyData,"createdAt": date});
+      const result = await ordersCollection.insertOne(req.body);
       res.send(result);
     });
 
     // order post api
     app.put("/order/:id", async (req, res) => {
-      const body = req.body;
       const { id } = req.params;
-      const result = await ordersCollection.updateOne({ _id: ObjectId(id) }, { $set: body }, { upsert: false });
+      const result = await ordersCollection.updateOne(
+        { _id: ObjectId(id) },
+        { $set: { confirm: true } },
+        { upsert: false }
+      );
       res.send(result);
     });
+
+    // app.get("/productCount", async (req, res) => {
+    //   const query = {};
+    //   const result = await ordersCollection.find(query).count();
+    //   res.send({ result });
+    // });
 
     // add to cart
     app.put("/cart/:id", async (req, res) => {
@@ -203,16 +209,15 @@ async function run() {
       res.send(result);
     });
 
-    app.post('/upload', upload.fields([{ name: 'productImg', maxCount: 1 }, { name: 'productImg1', maxCount: 1 }, { name: 'productImg2', maxCount: 1 }]), (req, res) => {
-      res.send({ ...req?.files, uploaded: true });
-    })
+    app.post("/upload", upload.single("productImg"), (req, res) => {
+      res.send({ ...req?.file, uploaded: true });
+    });
 
-    app.get('/file/:id', async (req, res) => {
+    app.get("/file/:id", async (req, res) => {
       const { id } = req.params;
       const file = `${__dirname}/products/${id}`;
       res.sendFile(file);
-    })
-
+    });
   } finally {
   }
 }
