@@ -203,7 +203,11 @@ async function run() {
       res.send(result);
     });
 
-    app.post('/upload', upload.fields([{ name: 'productImg', maxCount: 1 }, { name: 'productImg1', maxCount: 1 }, { name: 'productImg2', maxCount: 1 }]), (req, res) => {
+    app.post('/upload', upload.fields([
+      { name: 'productImg', maxCount: 1 }, 
+      { name: 'productImg1', maxCount: 1 }, 
+      { name: 'productImg2', maxCount: 1 }]), 
+      async (req, res) => {
       res.send({ ...req?.files, uploaded: true });
     })
 
