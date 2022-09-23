@@ -57,10 +57,6 @@ async function run() {
       .db("project-ecommerce")
       .collection("all-orders");
 
-    const cartCollection = client
-      .db("project-ecommerce")
-      .collection("cart-products");
-
     const userCollection = client
       .db("project-ecommerce")
       .collection("all-users");
@@ -131,19 +127,6 @@ async function run() {
       const body = req.body;
       const { id } = req.params;
       const result = await ordersCollection.updateOne({ _id: ObjectId(id) }, { $set: body }, { upsert: false });
-      res.send(result);
-    });
-
-    // add to cart
-    app.put("/cart/:id", async (req, res) => {
-      const id = req.params.id;
-      const cartProduct = req.body;
-      const filter = { _id: id };
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: cartProduct,
-      };
-      const result = await cartCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     });
 
