@@ -57,29 +57,25 @@ async function run() {
       .db("project-ecommerce")
       .collection("all-orders");
 
-    const cartCollection = client
-      .db("project-ecommerce")
-      .collection("cart-products");
-
     const userCollection = client
       .db("project-ecommerce")
       .collection("all-users");
 
     //  get all product
-    app.get("/all-product", async (req, res) => {
+    app.get("/server/all-product", async (req, res) => {
       const result = await productsCollection.find({}).toArray();
       res.send(result);
     });
 
     // add product
-    app.post("/add-product", async (req, res) => {
+    app.post("/server/add-product", async (req, res) => {
       const product = req.body;
       const result = await productsCollection.insertOne(product);
       res.send(result);
     });
 
     // get single product filter by id
-    app.get("/product/:id", async (req, res) => {
+    app.get("/server/product/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await productsCollection.findOne(query);
@@ -87,13 +83,13 @@ async function run() {
     });
 
     // post product
-    app.post("/product", async (req, res) => {
+    app.post("/server/product", async (req, res) => {
       const result = await productsCollection.insertOne(req.body);
       res.send(result);
     });
 
     // delete single product
-    app.delete("/product/:id", async (req, res) => {
+    app.delete("/server/product/:id", async (req, res) => {
       const id = req?.params?.id;
       const query = { _id: ObjectId(id) };
       const product = await productsCollection.findOne(query);
@@ -111,13 +107,13 @@ async function run() {
     });
 
     // get all order
-    app.get("/all-order", async (req, res) => {
+    app.get("/server/all-order", async (req, res) => {
       const result = await ordersCollection.find({}).toArray();
       res.send(result.reverse());
     });
 
     // order post api
-    app.post("/order", async (req, res) => {
+    app.post("/server/order", async (req, res) => {
       const bodyData = req.body;
       const date = new Date();
       date.setTime(date.getTime() + (3 * 24 * 60 * 60 * 1000))
@@ -127,28 +123,15 @@ async function run() {
     });
 
     // order post api
-    app.put("/order/:id", async (req, res) => {
+    app.put("/server/order/:id", async (req, res) => {
       const body = req.body;
       const { id } = req.params;
       const result = await ordersCollection.updateOne({ _id: ObjectId(id) }, { $set: body }, { upsert: false });
       res.send(result);
     });
 
-    // add to cart
-    app.put("/cart/:id", async (req, res) => {
-      const id = req.params.id;
-      const cartProduct = req.body;
-      const filter = { _id: id };
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: cartProduct,
-      };
-      const result = await cartCollection.updateOne(filter, updateDoc, options);
-      res.send(result);
-    });
-
     // cancle order api
-    app.delete("/cancel-order/:id", async (req, res) => {
+    app.delete("/server/cancel-order/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await ordersCollection.deleteOne(query);
@@ -156,7 +139,7 @@ async function run() {
     });
 
     // all user start
-    app.put("/user/:email", async (req, res) => {
+    app.put("/server/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
       const filter = { email: email };
@@ -168,14 +151,14 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/alluser", async (req, res) => {
+    app.get("/server/alluser", async (req, res) => {
       const query = {};
       const result = await userCollection.find(query).toArray();
       res.send(result);
     });
 
     // make admin api
-    app.patch("/make-admin/:email", async (req, res) => {
+    app.patch("/server/make-admin/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
       const filter = { email: email };
@@ -188,7 +171,7 @@ async function run() {
     });
 
     // get admin api
-    app.get("/admin/:email", async (req, res) => {
+    app.get("/server/admin/:email", async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
       const isAdmin = user?.role === "admin";
@@ -196,22 +179,20 @@ async function run() {
     });
 
     // delete user api
-    app.delete("/delete-user/:id", async (req, res) => {
+    app.delete("/server/delete-user/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await userCollection.deleteOne(query);
       res.send(result);
     });
 
-    app.post('/upload', upload.fields([
-      { name: 'productImg', maxCount: 1 }, 
-      { name: 'productImg1', maxCount: 1 }, 
-      { name: 'productImg2', maxCount: 1 }]), 
-      async (req, res) => {
+    // upload product image
+    app.post('/server/upload', upload.fields([{ name: 'productImg', maxCount: 1 }, { name: 'productImg1', maxCount: 1 }, { name: 'productImg2', maxCount: 1 }]), (req, res) => {
       res.send({ ...req?.files, uploaded: true });
     })
 
-    app.get('/file/:id', async (req, res) => {
+    // get product image
+    app.get('/server/file/:id', async (req, res) => {
       const { id } = req.params;
       const file = `${__dirname}/products/${id}`;
       res.sendFile(file);
@@ -222,7 +203,7 @@ async function run() {
 }
 run().catch(console.dir);
 
-app.get("/", (req, res) => {
+app.get("/server", (req, res) => {
   res.send("Project e-Commerce server is running!");
 });
 
