@@ -67,6 +67,8 @@ async function run() {
       res.send(result);
     });
 
+
+
     // add product
     app.post("/server/add-product", async (req, res) => {
       const product = req.body;
@@ -111,6 +113,17 @@ async function run() {
       const result = await ordersCollection.find({}).toArray();
       res.send(result.reverse());
     });
+
+    app.get("/server/order/:phone", async (req, res)=> {
+        const {phone} = req.params;
+        const result = await ordersCollection.findOne({phone:phone});
+        if (result) {
+          res.send({ordered:true});
+        }
+        else{
+          res.send({ordered:false});
+        }
+    })
 
     // order post api
     app.post("/server/order", async (req, res) => {
