@@ -5,7 +5,7 @@ const port = process.env.PORT || 5000;
 const cors = require("cors");
 // const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 // const { MongoClient, ServerApiVersion } = require('mongodb');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
 const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
@@ -64,15 +64,15 @@ async function run() {
   try {
     await client.connect();
     const productsCollection = client
-      .db("project-ecommerce")
+      .db("greatbazar")
       .collection("all-products");
 
     const ordersCollection = client
-      .db("project-ecommerce")
+      .db("greatbazar")
       .collection("all-orders");
 
     const userCollection = client
-      .db("project-ecommerce")
+      .db("greatbazar")
       .collection("all-users");
 
     //  get all product
